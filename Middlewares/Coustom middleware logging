@@ -1,0 +1,31 @@
+const express = require("express");
+
+const app = express();
+
+// ✅ Logging Middleware
+const loggerMiddleware = (req, res, next) => {
+  const method = req.method;
+  const url = req.originalUrl;
+  const time = new Date().toLocaleTimeString();
+
+  console.log(`[${time}] ${method} ${url}`);
+
+  next(); // important
+};
+
+// Register middleware
+app.use(loggerMiddleware);
+
+// Test routes
+app.get("/", (req, res) => {
+  res.send("Home Page");
+});
+
+app.get("/users", (req, res) => {
+  res.send("Users Page");
+});
+
+// Start server
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
