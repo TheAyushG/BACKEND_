@@ -1,0 +1,60 @@
+const express = require("express");
+const app = express();
+
+// Middleware to parse JSON body
+app.use(express.json());
+
+/*
+==================================
+AUTH MIDDLEWARE
+==================================
+*/
+const authMiddleware = (req, res, next) => {
+  // 1. Get token from request header
+  const token = req.headers.authorization;
+
+  // 2. If token is missing
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized: Token is missing"
+    });
+  }
+
+  // 3. Validate token (simple check)
+  if (token !== "mysecrettoken") {
+    return res.status(403).json({
+      message: "Forbidden: Invalid token"
+    });
+  }
+
+  // 4. Attach user info (optional but IMPORTANT)
+  req.user = {
+    id: 1,
+    role: "user"
+  };
+
+  // 5. Move to next middleware / route
+  next();
+};
+
+/*
+==================================
+ROUTES
+==================================
+*/
+
+// Public route (no auth needed)
+app.get("/public", (req, res) => {
+  res.send("Public route - no authentication required");
+  console.log("Hello");
+});
+
+// Protected route
+app.get("/dashboard", authMiddleware, (req, res) => {
+  res.send(`Welcome user ${req.user.id}`);
+});
+
+// Start server
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
